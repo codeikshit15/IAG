@@ -7,8 +7,8 @@ app = Flask(__name__)
 classifier_model=pickle.load(open('classifier.pkl','rb'))
 
 df = pd.read_csv("sample.csv")
-df = df[df["Label"] == "Benign"]  # Uncomment this to scan a random request.
-print(df.head())
+# df = df[df["Label"] == "Benign"]  # Comment this to scan a random request.
+# print(df.head())
 df_total_transformed = df.convert_dtypes()
 features = df_total_transformed[df_total_transformed.columns[:-1]]
 
@@ -23,8 +23,8 @@ for col in features.columns:
         col_wrong.append(col)
         pass
 
-print(len(col_wrong))
-print(col_wrong)
+# print(len(col_wrong))
+# print(col_wrong)
 
 # Simulate ML model prediction
 def check_request_malicious(headers: pd.DataFrame):
@@ -32,9 +32,9 @@ def check_request_malicious(headers: pd.DataFrame):
     # For demonstration, let's randomly decide if a request is malicious (0) or benign (1)
     # headers.drop(["Timestamp"], inplace = True)
     response= classifier_model.predict(headers[[x for x in headers.columns if x != "Timestamp"]])
-    print(list(labels_encoder.categories_[0]))
+    # print(list(labels_encoder.categories_[0]))
     headers_encoded={idx: ele for idx, ele in enumerate(list(labels_encoder.categories_[0]))}
-   
+    # print("Headers encoded = ", headers_encoded) 
     return {"resp": headers_encoded[response[0]], "message": "Request is malicious" if response[0]!=0 else "Request is benign"}
 
 @app.route('/')
@@ -43,7 +43,7 @@ def home():
     is_malicious = check_request_malicious(features.sample(1)) #replace request.headers with a randome row from the datadrame.
    
 
-    print(is_malicious)
+    # print(is_malicious)
     if is_malicious["resp"] != "Benign":
         # Redirect user if the request is detected as malicious
         return redirect('/malicious')
@@ -58,4 +58,3 @@ def malicious():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
